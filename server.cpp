@@ -5,6 +5,12 @@
 #include "server.h"
 #include "connection.h"
 #include "game.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <map>
+using namespace std;
 static pthread_t threads[MAXCONNECTION];
 volatile int i = 0;
 
@@ -36,24 +42,73 @@ struct tokens : std::ctype<char> {
         return &rc[0];
     }
 };
+map<string, std::string> mappify(string const& s)
+{
+    std::map<std::string, std::string> m;
+
+    std::string key, val;
+    std::istringstream iss(s);
+
+    while(std::getline(std::getline(iss, key, ':') >> std::ws, val))
+        m[key] = val;
+
+    return m;
+}
 
 /**
  * This is a function check username and password
  *
- * TODO: document method of authentication
+ * Search given userName from userPasswordHut file and check the password
+ * accordingly
  *
  * INPUT: String userName
  * INPUT: String password
  * OUTPUT: bool true if authorized, else false
 */
 bool server::authenticate(std::string userName, std::string password) {
-    //TODO: Implement actual authentication
-    bool bAuthorized = false;
-    printf("%sAuthorizing\n", SERVER);
-    if (userName == "ryan" && password == "123") {
-        bAuthorized = true;
+    const char *fileName="../userPasswordHut.txt";
+    ifstream paramFile;
+    paramFile.open(fileName);
+    string line;
+    string key;
+    map <string, string> valueMap;
+    if (paramFile.is_open()) {
+        while(getline(paramFile, line)) {
+            cout<<line<<endl;
+            map <string, string> tempMap = mappify(line);
+            for (auto const& s: tempMap) {
+                valueMap[s.first] = s.second;
+            }
+        }
     }
-    return bAuthorized;
+    paramFile.close();
+
+    for (auto const& s : valueMap) {
+        cout <<s.first<< "->"<<s.second<<endl;
+        if (s.first == userName) {
+            if (s.second == password) {
+                //cout<< "Login successful!"<<endl;
+                return true;
+            }
+        }
+    }
+    //cout<<"Incorrect username or password!"<<endl;
+    return false;
+}
+
+// Usage example: filePutContents("./yourfile.txt", "content", true);
+void filePutContents(const string& name, const string& content, bool append = false) {
+    ofstream outfile;
+    if (append)
+        outfile.open(name, ios_base::app);
+    else
+        outfile.open(name);
+    outfile << content<<endl;
+}
+void registration(string username, string password) {
+    string line = username + ": " + password;
+
+    filePutContents("../userPasswordHut.txt", line, true);
 }
 
 /**
@@ -182,7 +237,7 @@ void server::serverSetup(struct sockaddr_in &address, int &server_fd){
 
     // Forcefully attach socket to the port
     printf("%sAbout to bind\n", SERVER);
-    if (bind(server_fd, (struct sockaddr *)&address,
+    if (::bind(server_fd, (struct sockaddr *)&address,
              sizeof(address)) < 0) {
         perror("ERROR: bind failed");
         exit(EXIT_FAILURE);
@@ -195,6 +250,7 @@ void server::serverSetup(struct sockaddr_in &address, int &server_fd){
     }
 
 }
+
 
 /**
  * This is a function to assign sockets to clients

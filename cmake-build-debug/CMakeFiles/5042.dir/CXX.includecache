@@ -6,10 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/Users/liuyang016/CLionProjects/5042/connection.cpp
-connection.h
-/Users/liuyang016/CLionProjects/5042/connection.h
-
 /Users/liuyang016/CLionProjects/5042/connection.h
 unistd.h
 -
@@ -28,12 +24,6 @@ vector
 iostream
 -
 
-/Users/liuyang016/CLionProjects/5042/game.cpp
-game.h
-/Users/liuyang016/CLionProjects/5042/game.h
-connection.h
-/Users/liuyang016/CLionProjects/5042/connection.h
-
 /Users/liuyang016/CLionProjects/5042/game.h
 unistd.h
 -
@@ -44,14 +34,6 @@ vector
 string
 -
 
-/Users/liuyang016/CLionProjects/5042/main.cpp
-server.h
-/Users/liuyang016/CLionProjects/5042/server.h
-game.h
-/Users/liuyang016/CLionProjects/5042/game.h
-connection.h
-/Users/liuyang016/CLionProjects/5042/connection.h
-
 /Users/liuyang016/CLionProjects/5042/server.cpp
 server.h
 /Users/liuyang016/CLionProjects/5042/server.h
@@ -59,6 +41,16 @@ connection.h
 /Users/liuyang016/CLionProjects/5042/connection.h
 game.h
 /Users/liuyang016/CLionProjects/5042/game.h
+iostream
+-
+sstream
+-
+fstream
+-
+string
+-
+map
+-
 
 /Users/liuyang016/CLionProjects/5042/server.h
 unistd.h
