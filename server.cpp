@@ -42,7 +42,7 @@ struct tokens : std::ctype<char> {
         return &rc[0];
     }
 };
-map<string, std::string> mappify(string const& s)
+map<string, std::string> server::mappify(string const& s)
 {
     std::map<std::string, std::string> m;
 
@@ -74,7 +74,7 @@ bool server::authenticate(std::string userName, std::string password) {
     map <string, string> valueMap;
     if (paramFile.is_open()) {
         while(getline(paramFile, line)) {
-            cout<<line<<endl;
+            //cout<<line<<endl;
             map <string, string> tempMap = mappify(line);
             for (auto const& s: tempMap) {
                 valueMap[s.first] = s.second;
@@ -84,7 +84,7 @@ bool server::authenticate(std::string userName, std::string password) {
     paramFile.close();
 
     for (auto const& s : valueMap) {
-        cout <<s.first<< "->"<<s.second<<endl;
+        //cout <<s.first<< "->"<<s.second<<endl;
         if (s.first == userName) {
             if (s.second == password) {
                 //cout<< "Login successful!"<<endl;
@@ -96,8 +96,7 @@ bool server::authenticate(std::string userName, std::string password) {
     return false;
 }
 
-// Usage example: filePutContents("./yourfile.txt", "content", true);
-void filePutContents(const string& name, const string& content, bool append = false) {
+void server::filePutContents(const string& name, const string& content, bool append = false) {
     ofstream outfile;
     if (append)
         outfile.open(name, ios_base::app);
@@ -105,11 +104,13 @@ void filePutContents(const string& name, const string& content, bool append = fa
         outfile.open(name);
     outfile << content<<endl;
 }
-void registration(string username, string password) {
+void server::registration(string username, string password) {
     string line = username + ": " + password;
 
     filePutContents("../userPasswordHut.txt", line, true);
+    cout<<"Registration Successful!"<<endl;
 }
+
 
 /**
  * This is a function to handle logging into the server
@@ -128,6 +129,7 @@ bool server::login(int socket) {
     ssize_t status;
 
     status = read(socket, buffer, 1024);
+    cout<<buffer<<endl;
     if(status == -1 || status == 0) {
         std::cout << "Read Error" << status << std::endl;
         close(socket);
@@ -139,28 +141,56 @@ bool server::login(int socket) {
     buffer[1024] = { 0 };
 
     while (!bLogin) {
+        cout<<clientCommand[3]<<endl;
         if (clientCommand[0] == "rpc") {
             if (clientCommand[1] == "connect") {
-                if (authenticate(clientCommand[3], clientCommand[5])) {
-                    printf("%sLogin Credentials verified\n", SERVER);
-
-                    std::string reply = "reply=success;error=null";
-                    status = send(socket, reply.c_str(), reply.size() + 1, 0);
+                if (clientCommand[3].substr(0, 1) == "!") {
+                    /*
+                    buffer[1024] = { 0 };
+                    ssize_t status;
+                    status = read(socket, buffer, 1024);
+                    cout<<buffer<<endl;
                     if(status == -1 || status == 0) {
                         std::cout << "Read Error" << status << std::endl;
                         close(socket);
                         return false;
                     }
-                    bLogin = true;
-                }
-                else {
-                    printf("%sUserID or Password is wrong\n", SERVER);
-                    std::string reply = "reply=fail;error=UserID or Password is wrong";
+                    printf("%sReply Recieved\n", SERVER);
+
+                    clientCommand = splitBuffer(buffer);
+                    */
+                    clientCommand[3] = clientCommand[3].substr(1, clientCommand[3].length());
+                    registration(clientCommand[3], clientCommand[5]);
+                    printf("%Auto login successful\n", SERVER);
+                    std::string reply = "reply=success;error=null";
                     status = send(socket, reply.c_str(), reply.size() + 1, 0);
-                    if(status == -1 || status == 0) {
+                    if (status == -1 || status == 0) {
                         std::cout << "Read Error" << status << std::endl;
                         close(socket);
                         return false;
+                    }
+                    bLogin = true;
+                } else {
+                    if (authenticate(clientCommand[3], clientCommand[5])) {
+                        printf("%sLogin Credentials verified\n", SERVER);
+
+                        std::string reply = "reply=success;error=null";
+                        status = send(socket, reply.c_str(), reply.size() + 1, 0);
+                        if (status == -1 || status == 0) {
+                            std::cout << "Read Error" << status << std::endl;
+                            close(socket);
+                            return false;
+                        }
+                        bLogin = true;
+                    } else {
+                        printf("%sUserID or Password is wrong\n", SERVER);
+                        std::string reply = "reply=fail;error=UserID or Password is wrong";
+                        status = send(socket, reply.c_str(), reply.size() + 1, 0);
+                        if (status == -1 || status == 0) {
+                            std::cout << "Read Error" << status << std::endl;
+                            close(socket);
+                            return false;
+                        }
                     }
                 }
             }

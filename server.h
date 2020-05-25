@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <vector>
 #include <string>
+#include <map>
 #include <iostream>
 #include <iterator> //for spliting
 #include <cstring> //for spliting
@@ -43,10 +44,14 @@ private:
     std::vector<std::string> splitBuffer(std::string buffer);
     bool login(int socket); //handles the login RPC to the server before a connection is made (connections handle all reads/sends after they are made)
     bool authenticate(std::string userName, std::string password); //authenticates users
-
+    void registration(std::string username, std::string password);
+    void filePutContents(const std::string& name, const std::string& content, bool append);
     //pthreads won't accept member functions, so we force it to be a "non-member" function.
     //making this static is apparently bad practice, but we are hacking Object Oriented C++ into old school C threads, so...
     static void *task(void *arg);
+    std::map<std::string, std::string> mappify(std::string const& s);
+
+
 };
 
 #endif //INC_5042_SERVER_H
