@@ -322,7 +322,7 @@ void server::createConnection(struct sockaddr_in &address, int &server_fd) {
 /*pthread_t p1;
 //connection *newConnection = new connection(new_socket, server_fd, address);
 pthread_create(&p1, nullptr, startTask, nullptr);
-printf("%sClosing Game Thread\n", SERVER);
+printf("%sClosing gGame Thread\n", SERVER);
 pthread_join(p1, nullptr);
 //delete newConnection;
 */
